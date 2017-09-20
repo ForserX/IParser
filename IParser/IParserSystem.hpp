@@ -40,7 +40,24 @@ namespace IFS
 		}
 		config(const std::string_view filename)
 		{
-			parse(filename);
+			std::string new_file = "";
+			bool isPath = false;
+			for (unsigned it = 0; it < filename.length(); it++)
+			{
+				if (filename[it] == '/' && filename[it + 1] != '/' && !isPath)
+				{
+					isPath = true;
+					new_file += '/';
+					new_file += '/';
+				}
+				else
+				{
+					isPath = false;
+					new_file += filename[it];
+				}
+			}
+//			new_file[new_it + 1] = 0;
+			parse(new_file);
 		}
 		void WriteSect(const std::string_view filename, const std::string_view sectionname, const std::string_view keyname)
 		{
@@ -58,14 +75,30 @@ namespace IFS
 
 		inline std::list<section>& get_sections(){	return sections; };
 
-		std::string get_value(const std::string_view sectionname, const std::string_view keyname)
+		std::string get_value(const std::string_view sectionname, const std::string& keyname)
 		{
 			const section* sect = get_section(sectionname);
 			if (sect) 
 			{
-				auto it = sect->keyvalues.find(keyname.data());
+				auto it = sect->keyvalues.find(keyname);
 				if (it != sect->keyvalues.end())
-					return it->second;
+				{
+					std::string new_second = it->second;
+
+					if (new_second[0] == ' ')
+						new_second.erase(0, 1);
+
+					return new_second;
+				}
+				else if((it = sect->keyvalues.find(keyname + ' ')) != sect->keyvalues.end())
+				{
+					std::string new_second = it->second;
+
+					if (new_second[0] == ' ') 
+						new_second.erase(0, 1);
+
+					return new_second;
+				}
 			}
 			return "Error reading!";
 		}

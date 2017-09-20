@@ -8,7 +8,7 @@
 
 int main()
 {
-	IFS::config ini = IFS::config(std::string("..//test.ltx"));
+	IFS::config ini = IFS::config("../test.ltx");
 	std::cout << ini.get_value("sect", "key") << std::endl;
 	system("pause");
     return 0;
