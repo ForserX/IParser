@@ -3,14 +3,16 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <string_view>
 #include <algorithm>
 #include <unordered_map>
 #include <list>
+
 namespace IFS
 {
 
 	// trim leading white-spaces
-	static std::string& ltrim(std::string& s) {
+	static std::string_view ltrim(std::string_view s) {
 		size_t startpos = s.find_first_not_of(" \t\r\n\v\f");
 		if (std::string::npos != startpos)
 			s = s.substr(startpos);
@@ -18,7 +20,7 @@ namespace IFS
 	}
 
 	// trim trailing white-spaces
-	static std::string& rtrim(std::string& s) {
+	static std::string_view rtrim(std::string_view s) {
 		size_t endpos = s.find_last_not_of(" \t\r\n\v\f");
 		if (std::string::npos != endpos)
 			s = s.substr(0, endpos + 1);
@@ -36,17 +38,17 @@ namespace IFS
 		config()
 		{
 		}
-		config(const std::string& filename)
+		config(const std::string_view filename)
 		{
 			parse(filename);
 		}
-		void WriteSect(const std::string& filename, const std::string& sectionname, const std::string& keyname)
+		void WriteSect(const std::string_view filename, const std::string_view sectionname, const std::string_view keyname)
 		{
-			std::ofstream inp(filename, std::ios::in);
+			std::ofstream inp(filename.data(), std::ios::in);
 			inp << "[" << sectionname << "]" << std::endl << sectionname << " = " << keyname;
 			inp.close();
 		};
-		section* get_section(const std::string& sectionname)
+		section* get_section(const std::string_view sectionname)
 		{
 			std::list<section>::iterator found = std::find_if(sections.begin(), sections.end(), [sectionname](const section& sect) {
 				return sect.name.compare(sectionname) == 0; });
@@ -56,12 +58,12 @@ namespace IFS
 
 		inline std::list<section>& get_sections(){	return sections; };
 
-		std::string get_value(const std::string& sectionname, const std::string&keyname)
+		std::string get_value(const std::string_view sectionname, const std::string_view keyname)
 		{
 			const section* sect = get_section(sectionname);
 			if (sect) 
 			{
-				auto it = sect->keyvalues.find(keyname);
+				auto it = sect->keyvalues.find(keyname.data());
 				if (it != sect->keyvalues.end())
 					return it->second;
 			}
@@ -69,10 +71,11 @@ namespace IFS
 		}
 
 	private:
-		void parse(const std::string& filename) {
+		void parse(const std::string& filename) 
+		{
 			section currentsection;
 			std::ifstream fstrm;
-			fstrm.open(filename);
+			fstrm.open(filename.data());
 
 			if (!fstrm)
 				throw std::invalid_argument(filename + " could not be opened");
