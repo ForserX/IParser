@@ -6,7 +6,7 @@
 // trim leading white-spaces
 inline std::string_view ltrim(std::string_view s)
 {
-	size_t startpos = s.find_first_not_of(" \t\r\n\v\f");
+	const size_t startpos = s.find_first_not_of(" \t\r\n\v\f");
 	if (std::string::npos != startpos)
 		s = s.substr(startpos);
 	return s;
@@ -15,7 +15,7 @@ inline std::string_view ltrim(std::string_view s)
 // trim trailing white-spaces
 inline std::string_view rtrim(std::string_view s) 
 {
-	size_t endpos = s.find_last_not_of(" \t\r\n\v\f");
+	const size_t endpos = s.find_last_not_of(" \t\r\n\v\f");
 	if (std::string::npos != endpos)
 		s = s.substr(0, endpos + 1);
 	return s;
@@ -41,10 +41,15 @@ config::config(const string_view filename)
 	parse(new_file);
 }
 
-void config::WriteSect(const string_view filename, const string_view sectionname, const string_view keyname)
+void config::WriteSect(const string_view filename, const string_view sectionname, const string_view keyname, const string_view parent)
 {
 	std::ofstream inp(filename.data(), std::ios::in);
-	inp << "[" << sectionname << "]" << std::endl << sectionname << " = " << keyname;
+	inp << "[" << sectionname << "]";
+	if (parent != nullptr)
+	{
+		inp << ":" << parent;
+	}
+	inp << std::endl << sectionname << " = " << keyname;
 	inp.close();
 };
 

@@ -20,7 +20,7 @@ public:
 	config() { }
 	config(const string_view filename);
 
-	void WriteSect(const string_view filename, const string_view sectionname, const string_view keyname);
+	void WriteSect(const string_view filename, const string_view sectionname, const string_view keyname, const string_view parent = nullptr);
 	section* get_section(const string& sectionname);
 	inline std::list<section>& get_sections() { return sections; };
 	string get_value(const string& sectionname, const string& keyname);
