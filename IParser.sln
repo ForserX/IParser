@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26730.10
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IParser", "IParser\IParser.vcxproj", "{DAA1A5BA-28A0-43C2-BCD4-3B9E4976BD0C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "example", "IParser\IParser.vcxproj", "{DAA1A5BA-28A0-43C2-BCD4-3B9E4976BD0C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IParserLib", "IParserLib\IParserLib.vcxproj", "{5F63CA2E-A051-4B10-A108-BB473224D147}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,14 @@ Global
 		{DAA1A5BA-28A0-43C2-BCD4-3B9E4976BD0C}.Release|x64.Build.0 = Release|x64
 		{DAA1A5BA-28A0-43C2-BCD4-3B9E4976BD0C}.Release|x86.ActiveCfg = Release|Win32
 		{DAA1A5BA-28A0-43C2-BCD4-3B9E4976BD0C}.Release|x86.Build.0 = Release|Win32
+		{5F63CA2E-A051-4B10-A108-BB473224D147}.Debug|x64.ActiveCfg = Debug|x64
+		{5F63CA2E-A051-4B10-A108-BB473224D147}.Debug|x64.Build.0 = Debug|x64
+		{5F63CA2E-A051-4B10-A108-BB473224D147}.Debug|x86.ActiveCfg = Debug|Win32
+		{5F63CA2E-A051-4B10-A108-BB473224D147}.Debug|x86.Build.0 = Debug|Win32
+		{5F63CA2E-A051-4B10-A108-BB473224D147}.Release|x64.ActiveCfg = Release|x64
+		{5F63CA2E-A051-4B10-A108-BB473224D147}.Release|x64.Build.0 = Release|x64
+		{5F63CA2E-A051-4B10-A108-BB473224D147}.Release|x86.ActiveCfg = Release|Win32
+		{5F63CA2E-A051-4B10-A108-BB473224D147}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
