@@ -56,7 +56,7 @@ config::section* config::get_section(const string& sectionname)
 	{
 		return &*found;
 	}
-	else
+	else if(currentsection.parent[0] != '#')
 	{
 		string par = currentsection.parent;
 		found = std::find_if(sections.begin(), sections.end(), [par](const section& sect) { return sect.name.compare(par) == 0; });
@@ -84,7 +84,7 @@ std::string config::get_value(const string& sectionname, const string& keyname)
 			return newsect(it->second);
 		}
 	}
-	return "Error reading!";
+	return "Error reading! Section: " + sectionname + " Key: " + keyname;
 }
 
 void config::parse(const string& filename)
