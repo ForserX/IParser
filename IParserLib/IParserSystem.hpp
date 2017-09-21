@@ -8,7 +8,7 @@ class config
 {
 	using string = std::string;
 	using string_view = std::string_view;
-
+public:
 	struct section
 	{
 		std::string name;

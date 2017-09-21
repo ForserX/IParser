@@ -30,8 +30,7 @@ config::config(const string_view filename)
 		if (filename[it] == '/' && filename[it + 1] != '/' && !isPath)
 		{
 			isPath = true;
-			new_file += '/';
-			new_file += '/';
+			new_file += "//";
 		}
 		else
 		{
@@ -49,17 +48,20 @@ void config::WriteSect(const string_view filename, const string_view sectionname
 	inp.close();
 };
 
+inline std::list<config::section>::iterator get_found(const std::string& sectname, std::list<config::section>& sects)
+{
+	return std::find_if(sects.begin(), sects.end(), [sectname](const config::section& sect) { return sect.name.compare(sectname) == 0; });
+}
 config::section* config::get_section(const string& sectionname)
 {
-	auto found = std::find_if(sections.begin(), sections.end(), [sectionname](const section& sect) { return sect.name.compare(sectionname) == 0; });
+	std::list<config::section>::iterator found = get_found(sectionname, sections);
 	if (found != sections.end())
 	{
 		return &*found;
 	}
 	else if(currentsection.parent[0] != '#')
 	{
-		string par = currentsection.parent;
-		found = std::find_if(sections.begin(), sections.end(), [par](const section& sect) { return sect.name.compare(par) == 0; });
+		found = get_found(currentsection.parent, sections);
 		if (found != sections.end())
 		{
 			return &*found;
@@ -74,7 +76,7 @@ std::string config::get_value(const string& sectionname, const string& keyname)
 	if (sect)
 	{
 		auto it = sect->keyvalues.find(keyname);
-		auto newsect = [] (std::string sect) {if (sect[0] == ' ') sect.erase(0, 1); return sect; };
+		auto newsect = [] (string sect) {if (sect[0] == ' ') sect.erase(0, 1); return sect; };
 		if (it != sect->keyvalues.end())
 		{
 			return newsect(it->second);
@@ -89,9 +91,7 @@ std::string config::get_value(const string& sectionname, const string& keyname)
 
 void config::parse(const string& filename)
 {
-	
-	std::ifstream fstrm;
-	fstrm.open(filename.data());
+	std::ifstream fstrm(filename.data());
 
 	if (!fstrm)
 		throw std::invalid_argument(filename + " could not be opened");
@@ -126,26 +126,20 @@ void config::parse(const string& filename)
 				}
 				currentsection.name = line.substr(1, end - 1);
 			}
-			else {
-				// section has no closing ] char
-			}
 		}
 		else if (!line.empty())
 		{
 			/* Not a comment, must be a name[=:]value pair */
-			size_t end = line.find_first_of("=");
+			const size_t end = line.find_first_of("=");
 			if (end != string::npos)
 			{
-				string name = line.substr(0, end);
-				string value = line.substr(end + 1);
+				const string name = line.substr(0, end);
+				const string value = line.substr(end + 1);
 				ltrim(rtrim(name));
 				ltrim(rtrim(value));
 
 				currentsection.keyvalues[name] = value;
 
-			}
-			else {
-				// no key value delimitter
 			}
 		}
 	} // for
