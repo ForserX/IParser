@@ -12,6 +12,7 @@ class config
 	struct section
 	{
 		std::string name;
+		std::string parent;
 		std::unordered_map<std::string, std::string> keyvalues;
 	};
 
@@ -20,14 +21,13 @@ public:
 	config(const string_view filename);
 
 	void WriteSect(const string_view filename, const string_view sectionname, const string_view keyname);
-	section* get_section(const string_view sectionname);
-
+	section* get_section(const string& sectionname);
 	inline std::list<section>& get_sections() { return sections; };
-
-	string get_value(const string_view sectionname, const string& keyname);
+	string get_value(const string& sectionname, const string& keyname);
 
 private:
 	void parse(const std::string& filename);
 private:
 	std::list<section> sections;
+	section currentsection;
 };

@@ -49,15 +49,26 @@ void config::WriteSect(const string_view filename, const string_view sectionname
 	inp.close();
 };
 
-config::section* config::get_section(const string_view sectionname)
+config::section* config::get_section(const string& sectionname)
 {
-	std::list<section>::iterator found = std::find_if(sections.begin(), sections.end(), [sectionname](const section& sect) {
-		return sect.name.compare(sectionname) == 0; });
-
-	return found != sections.end() ? &*found : 0;
+	auto found = std::find_if(sections.begin(), sections.end(), [sectionname](const section& sect) { return sect.name.compare(sectionname) == 0; });
+	if (found != sections.end())
+	{
+		return &*found;
+	}
+	else
+	{
+		string par = currentsection.parent;
+		found = std::find_if(sections.begin(), sections.end(), [par](const section& sect) { return sect.name.compare(par) == 0; });
+		if (found != sections.end())
+		{
+			return &*found;
+		}
+	}
+	return 0;
 }
 
-std::string config::get_value(const string_view sectionname, const string& keyname)
+std::string config::get_value(const string& sectionname, const string& keyname)
 {
 	const section* sect = get_section(sectionname);
 	if (sect)
@@ -78,7 +89,7 @@ std::string config::get_value(const string_view sectionname, const string& keyna
 
 void config::parse(const string& filename)
 {
-	section currentsection;
+	
 	std::ifstream fstrm;
 	fstrm.open(filename.data());
 
@@ -95,6 +106,16 @@ void config::parse(const string& filename)
 		else if (line[0] == '[') {
 			/* A "[section]" line */
 			size_t end = line.find_first_of(']');
+
+			if (line.find_first_of(':') != string::npos)
+			{
+				currentsection.parent = line.erase(0, end + 2);
+				line = line.erase(end + 1, line.length() - 1);
+			}
+			else
+			{
+				currentsection.parent = "#";
+			}
 			if (end != string::npos) {
 
 				// this is a new section so if we have a current section populated, add it to list
@@ -109,12 +130,14 @@ void config::parse(const string& filename)
 				// section has no closing ] char
 			}
 		}
-		else if (!line.empty()) {
+		else if (!line.empty())
+		{
 			/* Not a comment, must be a name[=:]value pair */
 			size_t end = line.find_first_of("=");
-			if (end != std::string::npos) {
-				std::string name = line.substr(0, end);
-				std::string value = line.substr(end + 1);
+			if (end != string::npos)
+			{
+				string name = line.substr(0, end);
+				string value = line.substr(end + 1);
 				ltrim(rtrim(name));
 				ltrim(rtrim(value));
 
@@ -130,7 +153,8 @@ void config::parse(const string& filename)
 
 	  // if we are out of loop we add last section
 	  // this is a new section so if we have a current section populated, add it to list
-	if (!currentsection.name.empty()) {
+	if (!currentsection.name.empty())
+	{
 		sections.push_back(currentsection);  // copy
 		currentsection.name = "";
 		currentsection.keyvalues.clear();

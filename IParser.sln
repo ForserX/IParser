@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 15.0.26730.10
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "example", "IParser\IParser.vcxproj", "{DAA1A5BA-28A0-43C2-BCD4-3B9E4976BD0C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5F63CA2E-A051-4B10-A108-BB473224D147} = {5F63CA2E-A051-4B10-A108-BB473224D147}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IParserLib", "IParserLib\IParserLib.vcxproj", "{5F63CA2E-A051-4B10-A108-BB473224D147}"
 EndProject
