@@ -9,7 +9,7 @@
 int main()
 {
 	config ini = config("../test.ltx");
-	std::cout << ini.get_value("sect", "key_parent") << std::endl;
+	std::cout << ini.get_logic("sect", "key_parent") << std::endl;
 	system("pause");
     return 0;
 }

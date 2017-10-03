@@ -132,6 +132,9 @@
   <ItemGroup>
     <ClCompile Include="IParser.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="IParserSystem.hpp" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

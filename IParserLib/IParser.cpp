@@ -81,7 +81,7 @@ std::string config::get_value(const string& sectionname, const string& keyname)
 	if (sect)
 	{
 		auto it = sect->keyvalues.find(keyname);
-		auto newsect = [] (string sect) {if (sect[0] == ' ') sect.erase(0, 1); return sect; };
+		auto newsect = [] (std::string sect) {if (sect[0] == ' ') sect = sect.erase(0, 1); return sect; };
 		if (it != sect->keyvalues.end())
 		{
 			return newsect(it->second);
@@ -159,3 +159,34 @@ void config::parse(const string& filename)
 		currentsection.keyvalues.clear();
 	}
 };
+#include <locale>
+
+bool config::get_logic(const string& sectionname, const string& keyname)
+{
+	bool logic;
+	const std::string &val = this->get_value(sectionname, keyname);
+	const std::string isTrue = "true";
+	if (val.length() == isTrue.length())
+	{
+		for (unsigned it = 0; it < val.length(); it++)
+		{
+			std::locale* loc = new std::locale;
+			char i = std::tolower(val[it], *loc);
+			if (i == isTrue[it])
+			{
+				logic = true;
+			}
+			else
+			{
+				logic = false;
+				break;
+			}
+			delete loc;
+		}
+	}
+	else
+	{
+		logic = false;
+	}
+	return logic;
+}
