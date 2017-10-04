@@ -104,25 +104,27 @@ void config::parse(const string& filename)
 	for (string line; std::getline(fstrm, line);)
 	{
 		// if a comment
-		if (!line.empty() && (line[0] == ';' || line[0] == '#')) {
+		if (!line.empty() && (line[0] == ';' || line[0] == '#'))
+		{
 			// allow both ; and # comments at the start of a line
-
 		}
-		else if (line[0] == '[') {
-			/* A "[section]" line */
-			size_t end = line.find_first_of(']');
+		else if (line[0] == '[') /* A "[section]" line */
+		{
+			const size_t end = line.find_first_of(']');
 
+			// Setter parent section
 			if (line.find_first_of(':') != string::npos)
 			{
-				currentsection.parent = line.erase(0, end + 2);
+				string line_dub = line;
+				currentsection.parent = line_dub.erase(0, end + 2);
 				line = line.erase(end + 1, line.length() - 1);
 			}
 			else
 			{
 				currentsection.parent = "#";
 			}
-			if (end != string::npos) {
-
+			if (end != string::npos)
+			{
 				// this is a new section so if we have a current section populated, add it to list
 				if (!currentsection.name.empty()) {
 					sections.push_back(currentsection);  // copy
@@ -144,11 +146,9 @@ void config::parse(const string& filename)
 				ltrim(rtrim(value));
 
 				currentsection.keyvalues[name] = value;
-
 			}
 		}
 	} // for
-
 
 	  // if we are out of loop we add last section
 	  // this is a new section so if we have a current section populated, add it to list
@@ -160,33 +160,27 @@ void config::parse(const string& filename)
 	}
 };
 #include <locale>
-
 bool config::get_logic(const string& sectionname, const string& keyname)
 {
-	bool logic;
+	bool logic = false;
 	const std::string &val = this->get_value(sectionname, keyname);
 	const std::string isTrue = "true";
 	if (val.length() == isTrue.length())
 	{
-		for (unsigned it = 0; it < val.length(); it++)
+		for (unsigned index = 0; index < val.length(); index++)
 		{
 			std::locale* loc = new std::locale;
-			char i = std::tolower(val[it], *loc);
-			if (i == isTrue[it])
+			const char chr = std::tolower(val[index], *loc);
+			delete loc;
+			if (chr != isTrue[index])
+			{
+				break;
+			}
+			else if (index == val.length() - 1)
 			{
 				logic = true;
 			}
-			else
-			{
-				logic = false;
-				break;
-			}
-			delete loc;
 		}
-	}
-	else
-	{
-		logic = false;
 	}
 	return logic;
 }
