@@ -3,26 +3,28 @@
 #include <iostream>
 #include <algorithm>
 
-// trim leading white-spaces
-inline std::string_view ltrim(std::string_view s)
+inline std::string_view ltrim(std::string_view s) // trim leading white-spaces
 {
 	const size_t startpos = s.find_first_not_of(" \t\r\n\v\f");
 	if (std::string::npos != startpos)
 		s = s.substr(startpos);
 	return s;
 }
-
-// trim trailing white-spaces
-inline std::string_view rtrim(std::string_view s) 
+inline std::string_view rtrim(std::string_view s) // trim trailing white-spaces
 {
 	const size_t endpos = s.find_last_not_of(" \t\r\n\v\f");
 	if (std::string::npos != endpos)
 		s = s.substr(0, endpos + 1);
 	return s;
 }
+inline std::list<config::section>::iterator get_found(const std::string& sectname, std::list<config::section>& sects)
+{
+	return std::find_if(sects.begin(), sects.end(), [sectname](const config::section& sect) { return sect.name.compare(sectname) == 0; });
+}
 
 config::config(const string_view filename)
 {
+	currentsection.isParent = false;
 	string new_file = "";
 	bool isPath = false;
 	for (unsigned it = 0; it < filename.length(); it++)
@@ -53,24 +55,12 @@ void config::WriteSect(const string_view filename, const string_view sectionname
 	inp.close();
 };
 
-inline std::list<config::section>::iterator get_found(const std::string& sectname, std::list<config::section>& sects)
-{
-	return std::find_if(sects.begin(), sects.end(), [sectname](const config::section& sect) { return sect.name.compare(sectname) == 0; });
-}
 config::section* config::get_section(const string& sectionname)
 {
 	std::list<config::section>::iterator found = get_found(sectionname, sections);
 	if (found != sections.end())
 	{
 		return &*found;
-	}
-	else if(currentsection.parent[0] != '#')
-	{
-		found = get_found(currentsection.parent, sections);
-		if (found != sections.end())
-		{
-			return &*found;
-		}
 	}
 	return 0;
 }
@@ -89,6 +79,15 @@ std::string config::get_value(const string& sectionname, const string& keyname)
 		else if ((it = sect->keyvalues.find(keyname + ' ')) != sect->keyvalues.end())
 		{
 			return newsect(it->second);
+		}
+		else if ((currentsection.parent[0] != '#') && !currentsection.isParent)
+		{
+			currentsection.isParent = true;
+			return get_value(currentsection.parent, keyname);
+		}
+		else if (currentsection.isParent)
+		{
+			currentsection.isParent = false;
 		}
 	}
 	return "Error reading! Section: " + sectionname + " Key: " + keyname;
@@ -117,7 +116,7 @@ void config::parse(const string& filename)
 			{
 				string line_dub = line;
 				currentsection.parent = line_dub.erase(0, end + 2);
-				line = line.erase(end + 1, line.length() - 1);
+				line.erase(end + 1, line.length() - 1);
 			}
 			else
 			{
@@ -159,6 +158,7 @@ void config::parse(const string& filename)
 		currentsection.keyvalues.clear();
 	}
 };
+
 #include <locale>
 bool config::get_logic(const string& sectionname, const string& keyname)
 {
@@ -183,4 +183,16 @@ bool config::get_logic(const string& sectionname, const string& keyname)
 		}
 	}
 	return logic;
+}
+
+int config::get_number(const string& sectionname, const string& keyname)
+{
+	const std::string &val = this->get_value(sectionname, keyname);
+	return std::stoi(val);
+}
+
+float config::get_float(const string& sectionname, const string& keyname)
+{
+	const std::string &val = this->get_value(sectionname, keyname);
+	return std::stof(val);
 }

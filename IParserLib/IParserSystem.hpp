@@ -11,6 +11,7 @@ class config
 public:
 	struct section
 	{
+		bool isParent;
 		std::string name;
 		std::string parent;
 		std::unordered_map<std::string, std::string> keyvalues;
@@ -24,8 +25,10 @@ public:
 	section* get_section(const string& sectionname);
 	inline std::list<section>& get_sections() { return sections; };
 
-	bool	get_logic(const string& sectionname, const string& keyname);
-	string	get_value(const string& sectionname, const string& keyname);
+	int		get_number(const string& sectionname, const string& keyname);
+	bool	get_logic (const string& sectionname, const string& keyname);
+	string	get_value (const string& sectionname, const string& keyname);
+	float	get_float (const string& sectionname, const string& keyname);
 
 private:
 	void parse(const std::string& filename);
