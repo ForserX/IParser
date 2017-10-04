@@ -83,11 +83,9 @@ std::string config::get_value(const string& sectionname, const string& keyname)
 		else if ((currentsection.parent[0] != '#') && !currentsection.isParent)
 		{
 			currentsection.isParent = true;
-			return get_value(currentsection.parent, keyname);
-		}
-		else if (currentsection.isParent)
-		{
+			string val = get_value(currentsection.parent, keyname);
 			currentsection.isParent = false;
+			return val;
 		}
 	}
 	return "Error reading! Section: " + sectionname + " Key: " + keyname;
@@ -162,27 +160,9 @@ void config::parse(const string& filename)
 #include <locale>
 bool config::get_logic(const string& sectionname, const string& keyname)
 {
-	bool logic = false;
-	const std::string &val = this->get_value(sectionname, keyname);
-	const std::string isTrue = "true";
-	if (val.length() == isTrue.length())
-	{
-		for (unsigned index = 0; index < val.length(); index++)
-		{
-			std::locale* loc = new std::locale;
-			const char chr = std::tolower(val[index], *loc);
-			delete loc;
-			if (chr != isTrue[index])
-			{
-				break;
-			}
-			else if (index == val.length() - 1)
-			{
-				logic = true;
-			}
-		}
-	}
-	return logic;
+	std::string &val = this->get_value(sectionname, keyname);
+	std::transform(val.begin(), val.end(), val.begin(), ::tolower);
+	return val == "true";
 }
 
 int config::get_number(const string& sectionname, const string& keyname)
