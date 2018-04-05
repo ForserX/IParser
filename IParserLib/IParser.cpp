@@ -1,28 +1,40 @@
-#include "IParserSystem.hpp"
+////////////////////////////////////////
+// author: ForserX, 2017-2018 (C)
+// class : IParser - ini files parser			
+////////////////////////////////////////
+#include "IParserSystem.h"
+////////////////////////////////////////
 #include <fstream>
 #include <iostream>
 #include <algorithm>
+////////////////////////////////////////
 
-inline std::string_view ltrim(std::string_view s) // trim leading white-spaces
+// Trim leading white-spaces
+inline std::string_view ltrim(std::string_view s)
 {
 	const size_t startpos = s.find_first_not_of(" \t\r\n\v\f");
 	if (std::string::npos != startpos)
 		s = s.substr(startpos);
 	return s;
 }
-inline std::string_view rtrim(std::string_view s) // trim trailing white-spaces
+
+// Trim trailing white-spaces
+inline std::string_view rtrim(std::string_view s)
 {
 	const size_t endpos = s.find_last_not_of(" \t\r\n\v\f");
 	if (std::string::npos != endpos)
 		s = s.substr(0, endpos + 1);
 	return s;
 }
+
+// Getting and founding sects
 inline std::list<config::section>::iterator get_found(const std::string& sectname, std::list<config::section>& sects)
 {
 	return std::find_if(sects.begin(), sects.end(), [sectname](const config::section& sect) { return sect.name.compare(sectname) == 0; });
 }
 
-config::config(const string_view filename)
+// Config to parse
+config::config(const string_view filename, bool create)
 {
 	currentsection.isParent = false;
 	string new_file = "";
@@ -40,21 +52,37 @@ config::config(const string_view filename)
 			new_file += filename[it];
 		}
 	}
-	parse(new_file);
+	path = new_file;
+	parse(new_file, create);
 }
 
-void config::WriteSect(const string_view filename, const string_view sectionname, const string_view keyname, const string_view parent)
+/// <summary>
+/// Writing the section
+/// </summary>
+void config::WriteSect(const std::string_view filename, const std::string_view sectionname, const std::string_view keyname, const std::string_view key, const std::string_view parent)
 {
 	std::ofstream inp(filename.data(), std::ios::in);
+
+	if (!inp)
+	{
+		std::ofstream ofs(filename.data());
+		ofs.close();
+		inp.open(filename.data());
+		if (!inp)
+		{
+			throw std::invalid_argument(std::string(filename) + " could not be opened");
+		}
+	}
 	inp << "[" << sectionname << "]";
-	if (parent != nullptr)
+	if (parent != "")
 	{
 		inp << ":" << parent;
 	}
-	inp << std::endl << sectionname << " = " << keyname;
+	inp << std::endl << keyname << " = " << key;
 	inp.close();
 };
 
+// Getting the section
 config::section* config::get_section(const string& sectionname)
 {
 	std::list<config::section>::iterator found = get_found(sectionname, sections);
@@ -65,6 +93,7 @@ config::section* config::get_section(const string& sectionname)
 	return 0;
 }
 
+// Get value of sector
 std::string config::get_value(const string& sectionname, const string& keyname)
 {
 	const section* sect = get_section(sectionname);
@@ -91,13 +120,25 @@ std::string config::get_value(const string& sectionname, const string& keyname)
 	return "Error reading! Section: " + sectionname + " Key: " + keyname;
 }
 
-void config::parse(const string& filename)
+// Parse method
+void config::parse(const string& filename, bool create)
 {
 	std::ifstream fstrm(filename.data());
 
 	if (!fstrm)
-		throw std::invalid_argument(filename + " could not be opened");
-
+	{
+		if (create)
+		{
+			std::ofstream ofs(filename.data());
+			ofs.close();
+			fstrm.open(filename.data());
+			if (!fstrm)
+			{
+				throw std::invalid_argument(filename + " could not be opened");
+			}
+		}
+		else throw std::invalid_argument(filename + " could not be opened");
+	}
 	for (string line; std::getline(fstrm, line);)
 	{
 		// if a comment
@@ -145,7 +186,7 @@ void config::parse(const string& filename)
 				currentsection.keyvalues[name] = value;
 			}
 		}
-	} // for
+	}
 
 	  // if we are out of loop we add last section
 	  // this is a new section so if we have a current section populated, add it to list
@@ -157,7 +198,12 @@ void config::parse(const string& filename)
 	}
 };
 
+////////////////////////////////////////
 #include <locale>
+////////////////////////////////////////
+
+
+// Getting the string
 bool config::get_logic(const string& sectionname, const string& keyname)
 {
 	std::string &val = this->get_value(sectionname, keyname);
@@ -165,14 +211,32 @@ bool config::get_logic(const string& sectionname, const string& keyname)
 	return val == "true";
 }
 
+
+// Getting the int
 int config::get_number(const string& sectionname, const string& keyname)
 {
 	const std::string &val = this->get_value(sectionname, keyname);
 	return std::stoi(val);
 }
 
+
+// Getting the float
 float config::get_float(const string& sectionname, const string& keyname)
 {
 	const std::string &val = this->get_value(sectionname, keyname);
 	return std::stof(val);
 }
+
+
+//[FX]: Пока так, не хочу сейчас писать десятки строк ради одной записи
+////////////////////////////////////////
+#include <Windows.h>
+////////////////////////////////////////
+
+/// <summary>
+/// Writting the sectors
+/// </summary>
+void config::WriteSect(const std::string_view sectionname, const std::string_view keyname, const std::string_view key, const std::string_view parent)
+{
+	WritePrivateProfileStringA(sectionname.data(), keyname.data(), key.data(), path.data());
+};

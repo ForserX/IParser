@@ -1,8 +1,14 @@
+////////////////////////////////////////
+// author: ForserX, 2017-2018 (C)
+// class : IParser - ini files parser			
+////////////////////////////////////////
 #pragma once
+////////////////////////////////////////
 #include <string>
 #include <string_view>
 #include <unordered_map>
 #include <list>
+////////////////////////////////////////
 
 class config
 {
@@ -19,9 +25,11 @@ public:
 
 public:
 	config() { }
-	config(const string_view filename);
+	config(const string_view filename, bool create = false);
 
-	void WriteSect(const string_view filename, const string_view sectionname, const string_view keyname, const string_view parent = nullptr);
+	void WriteSect(const string_view filename, const string_view sectionname, const string_view keyname, const string_view key, const string_view parent = "");
+	void WriteSect(const string_view sectionname, const string_view keyname, const string_view key, const string_view parent = "");
+
 	section* get_section(const string& sectionname);
 	inline std::list<section>& get_sections() { return sections; };
 
@@ -31,8 +39,9 @@ public:
 	float	get_float (const string& sectionname, const string& keyname);
 
 private:
-	void parse(const std::string& filename);
+	void parse(const std::string& filename, bool create);
 private:
 	std::list<section> sections;
 	section currentsection;
+	std::string path;
 };
